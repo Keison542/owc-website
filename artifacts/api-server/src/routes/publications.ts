@@ -13,6 +13,8 @@ import {
   UpdatePublicationResponse,
   DeletePublicationParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -44,7 +46,7 @@ router.get("/publications", async (req, res): Promise<void> => {
     .from(publicationsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  res.json(ListPublicationsResponse.parse({ items, total: Number(total), page, limit }));
+  res.json(ListPublicationsResponse.parse({ items: items.map(serializeDates), total: Number(total), page, limit }));
 });
 
 router.get("/publications/recent", async (_req, res): Promise<void> => {
@@ -54,7 +56,7 @@ router.get("/publications/recent", async (_req, res): Promise<void> => {
     .where(eq(publicationsTable.status, "published"))
     .orderBy(desc(publicationsTable.publishedAt))
     .limit(6);
-  res.json(GetRecentPublicationsResponse.parse(items));
+  res.json(GetRecentPublicationsResponse.parse(items.map(serializeDates)));
 });
 
 router.get("/publications/:id", async (req, res): Promise<void> => {
@@ -68,11 +70,11 @@ router.get("/publications/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Publication not found" });
     return;
   }
-  res.json(GetPublicationByIdResponse.parse(item));
+  res.json(GetPublicationByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/publications", async (req, res): Promise<void> => {
-  const parsed = CreatePublicationBody.safeParse(req.body);
+router.post("/publications", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreatePublicationBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -84,17 +86,19 @@ router.post("/publications", async (req, res): Promise<void> => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "") + "-" + Date.now();
   }
-  const [item] = await db.insert(publicationsTable).values(data as typeof publicationsTable.$inferInsert).returning();
-  res.status(201).json(GetPublicationByIdResponse.parse(item));
+  const insertData = { ...data } as Record<string, unknown>;
+  if (insertData.publishedAt) insertData.publishedAt = new Date(insertData.publishedAt as string);
+  const [item] = await db.insert(publicationsTable).values(insertData as typeof publicationsTable.$inferInsert).returning();
+  res.status(201).json(GetPublicationByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/publications/:id", async (req, res): Promise<void> => {
+router.patch("/publications/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdatePublicationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdatePublicationBody.safeParse(req.body);
+  const parsed = UpdatePublicationBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -108,10 +112,10 @@ router.patch("/publications/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Publication not found" });
     return;
   }
-  res.json(UpdatePublicationResponse.parse(item));
+  res.json(UpdatePublicationResponse.parse(serializeDates(item)));
 });
 
-router.delete("/publications/:id", async (req, res): Promise<void> => {
+router.delete("/publications/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeletePublicationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

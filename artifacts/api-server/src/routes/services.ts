@@ -12,6 +12,8 @@ import {
   UpdateServiceResponse,
   DeleteServiceParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -31,7 +33,7 @@ router.get("/services", async (req, res): Promise<void> => {
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(asc(servicesTable.order));
 
-  res.json(ListServicesResponse.parse(items));
+  res.json(ListServicesResponse.parse(items.map(serializeDates)));
 });
 
 router.get("/services/:id", async (req, res): Promise<void> => {
@@ -45,11 +47,11 @@ router.get("/services/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Service not found" });
     return;
   }
-  res.json(GetServiceByIdResponse.parse(item));
+  res.json(GetServiceByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/services", async (req, res): Promise<void> => {
-  const parsed = CreateServiceBody.safeParse(req.body);
+router.post("/services", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreateServiceBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -62,16 +64,16 @@ router.post("/services", async (req, res): Promise<void> => {
       .replace(/(^-|-$)/g, "") + "-" + Date.now();
   }
   const [item] = await db.insert(servicesTable).values(data as typeof servicesTable.$inferInsert).returning();
-  res.status(201).json(GetServiceByIdResponse.parse(item));
+  res.status(201).json(GetServiceByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/services/:id", async (req, res): Promise<void> => {
+router.patch("/services/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateServiceParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateServiceBody.safeParse(req.body);
+  const parsed = UpdateServiceBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -81,10 +83,10 @@ router.patch("/services/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Service not found" });
     return;
   }
-  res.json(UpdateServiceResponse.parse(item));
+  res.json(UpdateServiceResponse.parse(serializeDates(item)));
 });
 
-router.delete("/services/:id", async (req, res): Promise<void> => {
+router.delete("/services/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeleteServiceParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

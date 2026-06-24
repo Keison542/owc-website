@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, and, like, count, sql } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 import { db, newsTable } from "@workspace/db";
 import {
   ListNewsQueryParams,
@@ -13,6 +13,8 @@ import {
   UpdateNewsResponse,
   DeleteNewsParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -25,8 +27,6 @@ router.get("/news", async (req, res): Promise<void> => {
   const page = params.data.page ?? 1;
   const limit = params.data.limit ?? 10;
   const offset = (page - 1) * limit;
-
-  let query = db.select().from(newsTable).orderBy(desc(newsTable.createdAt));
 
   const conditions = [];
   if (params.data.category) conditions.push(eq(newsTable.category, params.data.category));
@@ -45,7 +45,7 @@ router.get("/news", async (req, res): Promise<void> => {
     .from(newsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  res.json(ListNewsResponse.parse({ items, total: Number(total), page, limit }));
+  res.json(ListNewsResponse.parse({ items: items.map(serializeDates), total: Number(total), page, limit }));
 });
 
 router.get("/news/featured", async (_req, res): Promise<void> => {
@@ -55,7 +55,7 @@ router.get("/news/featured", async (_req, res): Promise<void> => {
     .where(and(eq(newsTable.featured, true), eq(newsTable.status, "published")))
     .orderBy(desc(newsTable.publishedAt))
     .limit(5);
-  res.json(GetFeaturedNewsResponse.parse(items));
+  res.json(GetFeaturedNewsResponse.parse(items.map(serializeDates)));
 });
 
 router.get("/news/:id", async (req, res): Promise<void> => {
@@ -69,11 +69,11 @@ router.get("/news/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "News article not found" });
     return;
   }
-  res.json(GetNewsByIdResponse.parse(item));
+  res.json(GetNewsByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/news", async (req, res): Promise<void> => {
-  const parsed = CreateNewsBody.safeParse(req.body);
+router.post("/news", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreateNewsBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -85,42 +85,36 @@ router.post("/news", async (req, res): Promise<void> => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "") + "-" + Date.now();
   }
-  const [item] = await db.insert(newsTable).values(data as typeof newsTable.$inferInsert).returning();
-  res.status(201).json(GetNewsByIdResponse.parse(item));
+  const insertData = { ...data } as Record<string, unknown>;
+  if (insertData.publishedAt) insertData.publishedAt = new Date(insertData.publishedAt as string);
+  const [item] = await db.insert(newsTable).values(insertData as typeof newsTable.$inferInsert).returning();
+  res.status(201).json(GetNewsByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/news/:id", async (req, res): Promise<void> => {
+router.patch("/news/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateNewsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateNewsBody.safeParse(req.body);
+  const parsed = UpdateNewsBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const updates: Record<string, unknown> = {};
-  const body = parsed.data;
-  if (body.title !== undefined) updates.title = body.title;
-  if (body.slug !== undefined) updates.slug = body.slug;
-  if (body.summary !== undefined) updates.summary = body.summary;
-  if (body.content !== undefined) updates.content = body.content;
-  if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
-  if (body.category !== undefined) updates.category = body.category;
-  if (body.status !== undefined) updates.status = body.status;
-  if (body.featured !== undefined) updates.featured = body.featured;
-  if (body.publishedAt !== undefined) updates.publishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
-
+  const updates: Record<string, unknown> = { ...parsed.data };
+  if (parsed.data.publishedAt !== undefined) {
+    updates.publishedAt = parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : null;
+  }
   const [item] = await db.update(newsTable).set(updates).where(eq(newsTable.id, params.data.id)).returning();
   if (!item) {
     res.status(404).json({ error: "News article not found" });
     return;
   }
-  res.json(UpdateNewsResponse.parse(item));
+  res.json(UpdateNewsResponse.parse(serializeDates(item)));
 });
 
-router.delete("/news/:id", async (req, res): Promise<void> => {
+router.delete("/news/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeleteNewsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

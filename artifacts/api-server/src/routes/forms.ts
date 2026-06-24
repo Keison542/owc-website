@@ -12,6 +12,8 @@ import {
   UpdateFormResponse,
   DeleteFormParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -32,7 +34,7 @@ router.get("/forms", async (req, res): Promise<void> => {
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(formsTable.createdAt));
 
-  res.json(ListFormsResponse.parse(items));
+  res.json(ListFormsResponse.parse(items.map(serializeDates)));
 });
 
 router.get("/forms/:id", async (req, res): Promise<void> => {
@@ -46,26 +48,26 @@ router.get("/forms/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Form not found" });
     return;
   }
-  res.json(GetFormByIdResponse.parse(item));
+  res.json(GetFormByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/forms", async (req, res): Promise<void> => {
-  const parsed = CreateFormBody.safeParse(req.body);
+router.post("/forms", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreateFormBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [item] = await db.insert(formsTable).values(parsed.data).returning();
-  res.status(201).json(GetFormByIdResponse.parse(item));
+  res.status(201).json(GetFormByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/forms/:id", async (req, res): Promise<void> => {
+router.patch("/forms/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateFormParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateFormBody.safeParse(req.body);
+  const parsed = UpdateFormBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -75,10 +77,10 @@ router.patch("/forms/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Form not found" });
     return;
   }
-  res.json(UpdateFormResponse.parse(item));
+  res.json(UpdateFormResponse.parse(serializeDates(item)));
 });
 
-router.delete("/forms/:id", async (req, res): Promise<void> => {
+router.delete("/forms/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeleteFormParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

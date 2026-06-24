@@ -13,6 +13,8 @@ import {
   UpdateTenderResponse,
   DeleteTenderParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -42,7 +44,7 @@ router.get("/tenders", async (req, res): Promise<void> => {
     .from(tendersTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  res.json(ListTendersResponse.parse({ items, total: Number(total), page, limit }));
+  res.json(ListTendersResponse.parse({ items: items.map(serializeDates), total: Number(total), page, limit }));
 });
 
 router.get("/tenders/active", async (_req, res): Promise<void> => {
@@ -53,7 +55,7 @@ router.get("/tenders/active", async (_req, res): Promise<void> => {
     .where(and(eq(tendersTable.status, "open"), gte(tendersTable.closingDate, now)))
     .orderBy(desc(tendersTable.publishedDate))
     .limit(10);
-  res.json(GetActiveTendersResponse.parse(items));
+  res.json(GetActiveTendersResponse.parse(items.map(serializeDates)));
 });
 
 router.get("/tenders/:id", async (req, res): Promise<void> => {
@@ -67,11 +69,11 @@ router.get("/tenders/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Tender not found" });
     return;
   }
-  res.json(GetTenderByIdResponse.parse(item));
+  res.json(GetTenderByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/tenders", async (req, res): Promise<void> => {
-  const parsed = CreateTenderBody.safeParse(req.body);
+router.post("/tenders", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreateTenderBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -80,16 +82,16 @@ router.post("/tenders", async (req, res): Promise<void> => {
   if (data.closingDate) data.closingDate = new Date(data.closingDate as string);
   if (data.publishedDate) data.publishedDate = new Date(data.publishedDate as string);
   const [item] = await db.insert(tendersTable).values(data as typeof tendersTable.$inferInsert).returning();
-  res.status(201).json(GetTenderByIdResponse.parse(item));
+  res.status(201).json(GetTenderByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/tenders/:id", async (req, res): Promise<void> => {
+router.patch("/tenders/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateTenderParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateTenderBody.safeParse(req.body);
+  const parsed = UpdateTenderBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -102,10 +104,10 @@ router.patch("/tenders/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Tender not found" });
     return;
   }
-  res.json(UpdateTenderResponse.parse(item));
+  res.json(UpdateTenderResponse.parse(serializeDates(item)));
 });
 
-router.delete("/tenders/:id", async (req, res): Promise<void> => {
+router.delete("/tenders/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeleteTenderParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

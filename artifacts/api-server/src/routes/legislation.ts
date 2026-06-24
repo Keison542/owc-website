@@ -12,6 +12,8 @@ import {
   UpdateLegislationResponse,
   DeleteLegislationParams,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
@@ -42,7 +44,7 @@ router.get("/legislation", async (req, res): Promise<void> => {
     .from(legislationTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  res.json(ListLegislationResponse.parse({ items, total: Number(total), page, limit }));
+  res.json(ListLegislationResponse.parse({ items: items.map(serializeDates), total: Number(total), page, limit }));
 });
 
 router.get("/legislation/:id", async (req, res): Promise<void> => {
@@ -56,11 +58,11 @@ router.get("/legislation/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Legislation not found" });
     return;
   }
-  res.json(GetLegislationByIdResponse.parse(item));
+  res.json(GetLegislationByIdResponse.parse(serializeDates(item)));
 });
 
-router.post("/legislation", async (req, res): Promise<void> => {
-  const parsed = CreateLegislationBody.safeParse(req.body);
+router.post("/legislation", requireStaffAuth, async (req, res): Promise<void> => {
+  const parsed = CreateLegislationBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -73,16 +75,16 @@ router.post("/legislation", async (req, res): Promise<void> => {
       .replace(/(^-|-$)/g, "") + "-" + Date.now();
   }
   const [item] = await db.insert(legislationTable).values(data as typeof legislationTable.$inferInsert).returning();
-  res.status(201).json(GetLegislationByIdResponse.parse(item));
+  res.status(201).json(GetLegislationByIdResponse.parse(serializeDates(item)));
 });
 
-router.patch("/legislation/:id", async (req, res): Promise<void> => {
+router.patch("/legislation/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateLegislationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateLegislationBody.safeParse(req.body);
+  const parsed = UpdateLegislationBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -92,10 +94,10 @@ router.patch("/legislation/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Legislation not found" });
     return;
   }
-  res.json(UpdateLegislationResponse.parse(item));
+  res.json(UpdateLegislationResponse.parse(serializeDates(item)));
 });
 
-router.delete("/legislation/:id", async (req, res): Promise<void> => {
+router.delete("/legislation/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = DeleteLegislationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
