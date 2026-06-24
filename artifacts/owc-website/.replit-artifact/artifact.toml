@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "OWC Website"
+version = "1.0.0"
+id = "artifacts/owc-website"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23316
+
+[services.development]
+run = "pnpm --filter @workspace/owc-website run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/owc-website", "run", "build" ]
+publicDir = "artifacts/owc-website/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23316"
+BASE_PATH = "/"

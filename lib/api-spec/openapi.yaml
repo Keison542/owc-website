@@ -3,13 +3,36 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: OWC Website API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: news
+    description: News and announcements
+  - name: publications
+    description: Publications
+  - name: legislation
+    description: Legislation
+  - name: tenders
+    description: Tenders
+  - name: faqs
+    description: FAQs
+  - name: forms
+    description: Forms and downloads
+  - name: services
+    description: Services
+  - name: contact
+    description: Contact
+  - name: search
+    description: Search
+  - name: staff
+    description: Staff CMS
+  - name: stats
+    description: Statistics and dashboard
+
 paths:
   /healthz:
     get:
@@ -24,6 +47,995 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── NEWS ────────────────────────────────────────────────────────────────────
+  /news:
+    get:
+      operationId: listNews
+      tags: [news]
+      summary: List news articles
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of news
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsListResponse"
+    post:
+      operationId: createNews
+      tags: [news]
+      summary: Create news article
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsArticle"
+
+  /news/featured:
+    get:
+      operationId: getFeaturedNews
+      tags: [news]
+      summary: Get featured news articles
+      responses:
+        "200":
+          description: Featured news
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsArticle"
+
+  /news/{id}:
+    get:
+      operationId: getNewsById
+      tags: [news]
+      summary: Get a news article
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: News article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsArticle"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateNews
+      tags: [news]
+      summary: Update a news article
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsArticle"
+    delete:
+      operationId: deleteNews
+      tags: [news]
+      summary: Delete a news article
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PUBLICATIONS ─────────────────────────────────────────────────────────────
+  /publications:
+    get:
+      operationId: listPublications
+      tags: [publications]
+      summary: List publications
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: year
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of publications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationListResponse"
+    post:
+      operationId: createPublication
+      tags: [publications]
+      summary: Create publication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publication"
+
+  /publications/recent:
+    get:
+      operationId: getRecentPublications
+      tags: [publications]
+      summary: Get recent publications
+      responses:
+        "200":
+          description: Recent publications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Publication"
+
+  /publications/{id}:
+    get:
+      operationId: getPublicationById
+      tags: [publications]
+      summary: Get a publication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Publication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publication"
+        "404":
+          description: Not found
+    patch:
+      operationId: updatePublication
+      tags: [publications]
+      summary: Update publication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publication"
+    delete:
+      operationId: deletePublication
+      tags: [publications]
+      summary: Delete publication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── LEGISLATION ──────────────────────────────────────────────────────────────
+  /legislation:
+    get:
+      operationId: listLegislation
+      tags: [legislation]
+      summary: List legislation
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of legislation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegislationListResponse"
+    post:
+      operationId: createLegislation
+      tags: [legislation]
+      summary: Create legislation entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LegislationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegislationItem"
+
+  /legislation/{id}:
+    get:
+      operationId: getLegislationById
+      tags: [legislation]
+      summary: Get a legislation item
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Legislation item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegislationItem"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateLegislation
+      tags: [legislation]
+      summary: Update legislation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LegislationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegislationItem"
+    delete:
+      operationId: deleteLegislation
+      tags: [legislation]
+      summary: Delete legislation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── TENDERS ─────────────────────────────────────────────────────────────────
+  /tenders:
+    get:
+      operationId: listTenders
+      tags: [tenders]
+      summary: List tenders
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of tenders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderListResponse"
+    post:
+      operationId: createTender
+      tags: [tenders]
+      summary: Create tender
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tender"
+
+  /tenders/active:
+    get:
+      operationId: getActiveTenders
+      tags: [tenders]
+      summary: Get active tenders
+      responses:
+        "200":
+          description: Active tenders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tender"
+
+  /tenders/{id}:
+    get:
+      operationId: getTenderById
+      tags: [tenders]
+      summary: Get a tender
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Tender
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tender"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateTender
+      tags: [tenders]
+      summary: Update tender
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenderUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tender"
+    delete:
+      operationId: deleteTender
+      tags: [tenders]
+      summary: Delete tender
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── FAQS ────────────────────────────────────────────────────────────────────
+  /faqs:
+    get:
+      operationId: listFaqs
+      tags: [faqs]
+      summary: List FAQs
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of FAQs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Faq"
+    post:
+      operationId: createFaq
+      tags: [faqs]
+      summary: Create FAQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaqInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Faq"
+
+  /faqs/{id}:
+    get:
+      operationId: getFaqById
+      tags: [faqs]
+      summary: Get a FAQ
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: FAQ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Faq"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateFaq
+      tags: [faqs]
+      summary: Update FAQ
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaqUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Faq"
+    delete:
+      operationId: deleteFaq
+      tags: [faqs]
+      summary: Delete FAQ
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── FORMS & DOWNLOADS ────────────────────────────────────────────────────────
+  /forms:
+    get:
+      operationId: listForms
+      tags: [forms]
+      summary: List forms and downloads
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Form"
+    post:
+      operationId: createForm
+      tags: [forms]
+      summary: Create form/download entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+
+  /forms/{id}:
+    get:
+      operationId: getFormById
+      tags: [forms]
+      summary: Get a form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateForm
+      tags: [forms]
+      summary: Update form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Form"
+    delete:
+      operationId: deleteForm
+      tags: [forms]
+      summary: Delete form
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── SERVICES ─────────────────────────────────────────────────────────────────
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List services
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+  /services/{id}:
+    get:
+      operationId: getServiceById
+      tags: [services]
+      summary: Get a service
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateService
+      tags: [services]
+      summary: Update service
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete service
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CONTACT ─────────────────────────────────────────────────────────────────
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit contact form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactSubmission"
+
+  /contact/submissions:
+    get:
+      operationId: listContactSubmissions
+      tags: [contact]
+      summary: List contact submissions (staff only)
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactSubmissionListResponse"
+
+  /contact/submissions/{id}:
+    get:
+      operationId: getContactSubmission
+      tags: [contact]
+      summary: Get contact submission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactSubmission"
+    patch:
+      operationId: updateContactSubmission
+      tags: [contact]
+      summary: Update contact submission status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactSubmissionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactSubmission"
+
+  # ─── SEARCH ──────────────────────────────────────────────────────────────────
+  /search:
+    get:
+      operationId: search
+      tags: [search]
+      summary: Global search
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+
+  # ─── STAFF AUTH ───────────────────────────────────────────────────────────────
+  /staff/login:
+    post:
+      operationId: staffLogin
+      tags: [staff]
+      summary: Staff login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffLoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffAuthResponse"
+        "401":
+          description: Unauthorized
+
+  /staff/logout:
+    post:
+      operationId: staffLogout
+      tags: [staff]
+      summary: Staff logout
+      responses:
+        "204":
+          description: Logged out
+
+  /staff/me:
+    get:
+      operationId: getStaffMe
+      tags: [staff]
+      summary: Get current staff user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+        "401":
+          description: Unauthorized
+
+  /staff/users:
+    get:
+      operationId: listStaffUsers
+      tags: [staff]
+      summary: List staff users
+      responses:
+        "200":
+          description: Staff users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffUser"
+    post:
+      operationId: createStaffUser
+      tags: [staff]
+      summary: Create staff user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffUserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+
+  /staff/users/{id}:
+    patch:
+      operationId: updateStaffUser
+      tags: [staff]
+      summary: Update staff user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffUserUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffUser"
+    delete:
+      operationId: deleteStaffUser
+      tags: [staff]
+      summary: Delete staff user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CONTENT APPROVAL ─────────────────────────────────────────────────────────
+  /staff/pending:
+    get:
+      operationId: listPendingContent
+      tags: [staff]
+      summary: List content pending approval
+      responses:
+        "200":
+          description: Pending content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PendingContentResponse"
+
+  /staff/approve:
+    post:
+      operationId: approveContent
+      tags: [staff]
+      summary: Approve or reject content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContentApprovalInput"
+      responses:
+        "200":
+          description: Approval processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentApprovalResult"
+
+  # ─── STATS ────────────────────────────────────────────────────────────────────
+  /stats:
+    get:
+      operationId: getSiteStats
+      tags: [stats]
+      summary: Get site-wide statistics
+      responses:
+        "200":
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +1046,508 @@ components:
       required:
         - status
 
+    # ─── NEWS ──────────────────────────────────────────────────────────────────
+    NewsArticle:
+      type: object
+      required: [id, title, slug, content, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        summary: { type: ["string", "null"] }
+        content: { type: string }
+        imageUrl: { type: ["string", "null"] }
+        category: { type: ["string", "null"] }
+        status: { type: string }
+        featured: { type: boolean }
+        authorId: { type: ["integer", "null"] }
+        authorName: { type: ["string", "null"] }
+        publishedAt: { type: ["string", "null"] }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    NewsListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsArticle"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    NewsInput:
+      type: object
+      required: [title, content]
+      properties:
+        title: { type: string, minLength: 1 }
+        slug: { type: string }
+        summary: { type: string }
+        content: { type: string }
+        imageUrl: { type: string }
+        category: { type: string }
+        status: { type: string }
+        featured: { type: boolean }
+        publishedAt: { type: string }
+
+    NewsUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 1 }
+        slug: { type: string }
+        summary: { type: string }
+        content: { type: string }
+        imageUrl: { type: string }
+        category: { type: string }
+        status: { type: string }
+        featured: { type: boolean }
+        publishedAt: { type: string }
+
+    # ─── PUBLICATIONS ──────────────────────────────────────────────────────────
+    Publication:
+      type: object
+      required: [id, title, type, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        description: { type: ["string", "null"] }
+        type: { type: string }
+        fileUrl: { type: ["string", "null"] }
+        coverImageUrl: { type: ["string", "null"] }
+        year: { type: ["integer", "null"] }
+        status: { type: string }
+        authorId: { type: ["integer", "null"] }
+        authorName: { type: ["string", "null"] }
+        publishedAt: { type: ["string", "null"] }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    PublicationListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Publication"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    PublicationInput:
+      type: object
+      required: [title, type]
+      properties:
+        title: { type: string, minLength: 1 }
+        slug: { type: string }
+        description: { type: string }
+        type: { type: string }
+        fileUrl: { type: string }
+        coverImageUrl: { type: string }
+        year: { type: integer }
+        status: { type: string }
+        publishedAt: { type: string }
+
+    PublicationUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        type: { type: string }
+        fileUrl: { type: string }
+        coverImageUrl: { type: string }
+        year: { type: integer }
+        status: { type: string }
+        publishedAt: { type: string }
+
+    # ─── LEGISLATION ───────────────────────────────────────────────────────────
+    LegislationItem:
+      type: object
+      required: [id, title, type, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        description: { type: ["string", "null"] }
+        type: { type: string }
+        year: { type: ["integer", "null"] }
+        fileUrl: { type: ["string", "null"] }
+        status: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    LegislationListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LegislationItem"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    LegislationInput:
+      type: object
+      required: [title, type]
+      properties:
+        title: { type: string, minLength: 1 }
+        slug: { type: string }
+        description: { type: string }
+        type: { type: string }
+        year: { type: integer }
+        fileUrl: { type: string }
+        status: { type: string }
+
+    LegislationUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        type: { type: string }
+        year: { type: integer }
+        fileUrl: { type: string }
+        status: { type: string }
+
+    # ─── TENDERS ───────────────────────────────────────────────────────────────
+    Tender:
+      type: object
+      required: [id, title, referenceNumber, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        referenceNumber: { type: string }
+        description: { type: ["string", "null"] }
+        status: { type: string }
+        category: { type: ["string", "null"] }
+        closingDate: { type: ["string", "null"] }
+        publishedDate: { type: ["string", "null"] }
+        fileUrl: { type: ["string", "null"] }
+        contactEmail: { type: ["string", "null"] }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    TenderListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tender"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    TenderInput:
+      type: object
+      required: [title, referenceNumber]
+      properties:
+        title: { type: string, minLength: 1 }
+        referenceNumber: { type: string }
+        description: { type: string }
+        status: { type: string }
+        category: { type: string }
+        closingDate: { type: string }
+        publishedDate: { type: string }
+        fileUrl: { type: string }
+        contactEmail: { type: string }
+
+    TenderUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        referenceNumber: { type: string }
+        description: { type: string }
+        status: { type: string }
+        category: { type: string }
+        closingDate: { type: string }
+        publishedDate: { type: string }
+        fileUrl: { type: string }
+        contactEmail: { type: string }
+
+    # ─── FAQS ──────────────────────────────────────────────────────────────────
+    Faq:
+      type: object
+      required: [id, question, answer, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        question: { type: string }
+        answer: { type: string }
+        category: { type: ["string", "null"] }
+        order: { type: integer }
+        status: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    FaqInput:
+      type: object
+      required: [question, answer]
+      properties:
+        question: { type: string, minLength: 1 }
+        answer: { type: string, minLength: 1 }
+        category: { type: string }
+        order: { type: integer }
+        status: { type: string }
+
+    FaqUpdate:
+      type: object
+      properties:
+        question: { type: string }
+        answer: { type: string }
+        category: { type: string }
+        order: { type: integer }
+        status: { type: string }
+
+    # ─── FORMS ─────────────────────────────────────────────────────────────────
+    Form:
+      type: object
+      required: [id, title, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        category: { type: ["string", "null"] }
+        fileUrl: { type: ["string", "null"] }
+        fileSize: { type: ["string", "null"] }
+        fileType: { type: ["string", "null"] }
+        version: { type: ["string", "null"] }
+        status: { type: string }
+        downloadCount: { type: integer }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    FormInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        category: { type: string }
+        fileUrl: { type: string }
+        fileSize: { type: string }
+        fileType: { type: string }
+        version: { type: string }
+        status: { type: string }
+
+    FormUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        category: { type: string }
+        fileUrl: { type: string }
+        fileSize: { type: string }
+        fileType: { type: string }
+        version: { type: string }
+        status: { type: string }
+
+    # ─── SERVICES ──────────────────────────────────────────────────────────────
+    Service:
+      type: object
+      required: [id, title, status, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        description: { type: ["string", "null"] }
+        content: { type: ["string", "null"] }
+        iconName: { type: ["string", "null"] }
+        targetAudience: { type: ["string", "null"] }
+        order: { type: integer }
+        status: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    ServiceInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+        slug: { type: string }
+        description: { type: string }
+        content: { type: string }
+        iconName: { type: string }
+        targetAudience: { type: string }
+        order: { type: integer }
+        status: { type: string }
+
+    ServiceUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        content: { type: string }
+        iconName: { type: string }
+        targetAudience: { type: string }
+        order: { type: integer }
+        status: { type: string }
+
+    # ─── CONTACT ───────────────────────────────────────────────────────────────
+    ContactSubmission:
+      type: object
+      required: [id, name, email, subject, message, status, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: ["string", "null"] }
+        subject: { type: string }
+        message: { type: string }
+        status: { type: string }
+        respondedAt: { type: ["string", "null"] }
+        createdAt: { type: string }
+
+    ContactSubmissionListResponse:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactSubmission"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    ContactInput:
+      type: object
+      required: [name, email, subject, message]
+      properties:
+        name: { type: string, minLength: 1 }
+        email: { type: string }
+        phone: { type: string }
+        subject: { type: string, minLength: 1 }
+        message: { type: string, minLength: 1 }
+
+    ContactSubmissionUpdate:
+      type: object
+      properties:
+        status: { type: string }
+
+    # ─── SEARCH ────────────────────────────────────────────────────────────────
+    SearchResult:
+      type: object
+      required: [id, type, title, excerpt]
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        title: { type: string }
+        excerpt: { type: ["string", "null"] }
+        url: { type: string }
+        publishedAt: { type: ["string", "null"] }
+
+    SearchResults:
+      type: object
+      required: [results, total, query]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResult"
+        total: { type: integer }
+        query: { type: string }
+
+    # ─── STAFF ─────────────────────────────────────────────────────────────────
+    StaffUser:
+      type: object
+      required: [id, name, email, role, isActive, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        role: { type: string }
+        isActive: { type: boolean }
+        lastLoginAt: { type: ["string", "null"] }
+        createdAt: { type: string }
+
+    StaffLoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    StaffAuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/StaffUser"
+        token: { type: string }
+
+    StaffUserInput:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name: { type: string, minLength: 1 }
+        email: { type: string }
+        password: { type: string, minLength: 8 }
+        role: { type: string }
+
+    StaffUserUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        role: { type: string }
+        isActive: { type: boolean }
+        password: { type: string }
+
+    # ─── APPROVAL ──────────────────────────────────────────────────────────────
+    PendingContentItem:
+      type: object
+      required: [id, type, title, submittedBy, createdAt]
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        title: { type: string }
+        submittedBy: { type: ["string", "null"] }
+        createdAt: { type: string }
+
+    PendingContentResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PendingContentItem"
+        total: { type: integer }
+
+    ContentApprovalInput:
+      type: object
+      required: [contentType, contentId, action]
+      properties:
+        contentType: { type: string }
+        contentId: { type: integer }
+        action: { type: string }
+        note: { type: string }
+
+    ContentApprovalResult:
+      type: object
+      required: [success, message]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+
+    # ─── STATS ─────────────────────────────────────────────────────────────────
+    SiteStats:
+      type: object
+      required: [totalNews, totalPublications, totalLegislation, activeTenders, totalForms, totalServices, pendingApprovals, recentContactSubmissions]
+      properties:
+        totalNews: { type: integer }
+        totalPublications: { type: integer }
+        totalLegislation: { type: integer }
+        activeTenders: { type: integer }
+        totalForms: { type: integer }
+        totalServices: { type: integer }
+        pendingApprovals: { type: integer }
+        recentContactSubmissions: { type: integer }

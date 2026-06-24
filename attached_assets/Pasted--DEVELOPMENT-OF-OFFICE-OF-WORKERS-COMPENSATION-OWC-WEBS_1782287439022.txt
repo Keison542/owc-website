@@ -1,0 +1,45 @@
+
+DEVELOPMENT OF OFFICE OF WORKERS COMPENSATION (OWC) WEBSITE
+
+1. BACKGROUND
+The Office of Workers Compensation (OWC), one of the seven Statutory Offices under the Ministry of Labour and Employment, is mandated under the Workers Compensation Act 1978 to administer and enforce compulsory workers compensation laws in Papua New Guinea, and manages employer registrations, claims processing, and compensation settlements across Papua New Guinea.
+OWC currently operates the Claims Processing and Payment System (CPPS) — an internal web application — and a Supabase PostgreSQL backend database. OWC now seeks to develop a modern, secure, and fully integrated corporate website to improve public access to services, information, and communication.
+It is to improve public awareness, accessibility, transparency, reporting, and online service delivery through the development of an official OWC Website aligned with PNG Government ICT, DICT, and NICTA standards.
+
+The website will serve as an information, reporting, and service platform for workers, employers, insurers, Occupational Health & Safety (OHS) stakeholders, policymakers, researchers, and Government agencies.
+
+2. OBJECTIVE
+Design, develop, and deploy a corporate website that:
+•	Delivers a responsive, mobile-first public-facing website
+•	Integrates with the existing CPPS web application via REST/GraphQL API
+•	Connects to the OWC Supabase backend database for real-time data
+•	Provides authorised staff with a content management interface
+•	Is hosted on OWC's Ubuntu Server 24.04 LTS environment
+•	Is managed through GitHub version control with CI/CD deployment
+
+3. SCOPE OF WORK
+•	Website Design: Wireframes, high-fidelity mockups, responsive UI compliant with WCAG 2.1 AA accessibility standards
+•	Development: Core pages — Home, About, Services, Forms & Downloads, News, Publications, Legislation, Tenders, FAQs, Contact, and site-wide Search.
+•	CMS: Role-based content management with approval workflows and staff training
+•	System Integration:  Able to use API functionality to communicate with our backend system.
+•	Security: HTTPS/TLS, OWASP Top 10 mitigation, MFA on admin login, rate limiting, and pre-launch security assessment
+•	Deployment: CI/CD pipeline via GitHub Actions; zero-downtime deployment using PM2/system on Ubuntu 24.04 LTS
+•	Handover: Full source code, documentation, UAT sign-off, and minimum 90-day post-launch warranty
+
+4. TECHNICAL REQUIREMENTS
+Hosting: Ubuntu Server 24.04 LTS; Nginx (preferred) or Apache2; Docker/Compose supported.
+Preferred Technology Stack (aligned with OWC's existing CPPS system):
+React TypeScript Vite Tailwind CSS Node.js Supabase GitHub Actions
+CMS Options Accepted: OWC is open to headless or traditional CMS platforms (e.g. Strapi, Payload CMS, Directus, WordPress headless, Drupal/Joomla decoupled) provided the vendor demonstrates clear integration with Supabase and CPPS via API.
+Version Control: All code hosted in an OWC-owned GitHub repository. Branching strategy and CI/CD pipeline (GitHub Actions) required. Deployments must be achievable via Git push/pull workflow.
+Performance: Google Lighthouse score ≥85 (desktop) / ≥75 (mobile). Time to Interactive <3 seconds.
+
+5. EXPERTISE REQUIRED
+5.1 Individual Bidders
+•	Degree in Computer Science, Software Engineering, Information Technology or related field
+•	Minimum 5 years' experience in web application development
+•	Proven expertise in React / TypeScript / Vite / Tailwind CSS stack
+•	Demonstrated experience with Supabase, PostgreSQL, and REST/GraphQL API integration
+•	Experience with GitHub CI/CD pipelines and Linux server deployment
+•	Web security knowledge (OWASP Top 10, SSL/TLS, RBAC)
+
