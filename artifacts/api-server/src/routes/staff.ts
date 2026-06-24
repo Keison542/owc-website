@@ -24,6 +24,12 @@ const router: IRouter = Router();
 
 const JWT_SECRET = process.env.SESSION_SECRET ?? "owc-staff-secret-key-change-in-prod";
 
+function serializeDates<T extends Record<string, unknown>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [k, v instanceof Date ? v.toISOString() : v])
+  ) as T;
+}
+
 export function requireStaffAuth(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
@@ -60,7 +66,7 @@ router.post("/staff/login", async (req, res): Promise<void> => {
   await db.update(staffUsersTable).set({ lastLoginAt: new Date() }).where(eq(staffUsersTable.id, user.id));
   const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: "8h" });
   const { passwordHash: _, ...safeUser } = user;
-  res.json(StaffLoginResponse.parse({ user: safeUser, token }));
+  res.json(StaffLoginResponse.parse({ user: serializeDates(safeUser), token }));
 });
 
 router.post("/staff/logout", (_req, res): void => {
@@ -79,12 +85,12 @@ router.get("/staff/me", requireStaffAuth, async (req, res): Promise<void> => {
     return;
   }
   const { passwordHash: _, ...safeUser } = user;
-  res.json(GetStaffMeResponse.parse(safeUser));
+  res.json(GetStaffMeResponse.parse(serializeDates(safeUser)));
 });
 
 router.get("/staff/users", requireStaffAuth, async (_req, res): Promise<void> => {
   const users = await db.select().from(staffUsersTable).orderBy(desc(staffUsersTable.createdAt));
-  const safeUsers = users.map(({ passwordHash: _, ...u }) => u);
+  const safeUsers = users.map(({ passwordHash: _, ...u }) => serializeDates(u));
   res.json(ListStaffUsersResponse.parse(safeUsers));
 });
 
@@ -129,7 +135,7 @@ router.patch("/staff/users/:id", requireStaffAuth, async (req, res): Promise<voi
     return;
   }
   const { passwordHash: _, ...safeUser } = user;
-  res.json(UpdateStaffUserResponse.parse(safeUser));
+  res.json(UpdateStaffUserResponse.parse(serializeDates(safeUser)));
 });
 
 router.delete("/staff/users/:id", requireStaffAuth, async (req, res): Promise<void> => {
