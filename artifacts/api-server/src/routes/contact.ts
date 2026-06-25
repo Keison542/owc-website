@@ -11,20 +11,22 @@ import {
   UpdateContactSubmissionBody,
   UpdateContactSubmissionResponse,
 } from "@workspace/api-zod";
+import { requireStaffAuth } from "./staff";
+import { serializeDates, stripNulls } from "../lib/routeUtils";
 
 const router: IRouter = Router();
 
 router.post("/contact", async (req, res): Promise<void> => {
-  const parsed = SubmitContactBody.safeParse(req.body);
+  const parsed = SubmitContactBody.safeParse(stripNulls(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [item] = await db.insert(contactSubmissionsTable).values(parsed.data).returning();
-  res.status(201).json(GetContactSubmissionResponse.parse(item));
+  res.status(201).json(GetContactSubmissionResponse.parse(serializeDates(item)));
 });
 
-router.get("/contact/submissions", async (req, res): Promise<void> => {
+router.get("/contact/submissions", requireStaffAuth, async (req, res): Promise<void> => {
   const params = ListContactSubmissionsQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -50,10 +52,10 @@ router.get("/contact/submissions", async (req, res): Promise<void> => {
     .from(contactSubmissionsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  res.json(ListContactSubmissionsResponse.parse({ items, total: Number(total), page, limit }));
+  res.json(ListContactSubmissionsResponse.parse({ items: items.map(serializeDates), total: Number(total), page, limit }));
 });
 
-router.get("/contact/submissions/:id", async (req, res): Promise<void> => {
+router.get("/contact/submissions/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = GetContactSubmissionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -64,10 +66,10 @@ router.get("/contact/submissions/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Submission not found" });
     return;
   }
-  res.json(GetContactSubmissionResponse.parse(item));
+  res.json(GetContactSubmissionResponse.parse(serializeDates(item)));
 });
 
-router.patch("/contact/submissions/:id", async (req, res): Promise<void> => {
+router.patch("/contact/submissions/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateContactSubmissionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -91,7 +93,7 @@ router.patch("/contact/submissions/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Submission not found" });
     return;
   }
-  res.json(UpdateContactSubmissionResponse.parse(item));
+  res.json(UpdateContactSubmissionResponse.parse(serializeDates(item)));
 });
 
 export default router;
