@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
 import { useStaffLogin } from "@workspace/api-client-react";
 
 export default function StaffLogin() {
@@ -44,9 +44,19 @@ export default function StaffLogin() {
         </div>
 
         <div className="bg-card border border-border rounded-sm shadow-xl p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Shield className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-serif font-bold">Staff Login</h1>
+          {/* Header with Back to Home link */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              <h1 className="text-xl font-serif font-bold">Staff Login</h1>
+            </div>
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

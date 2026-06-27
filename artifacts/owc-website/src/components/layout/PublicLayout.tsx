@@ -34,8 +34,10 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <Link href="/about" className="text-foreground hover:text-primary transition-colors">About</Link>
             <Link href="/services" className="text-foreground hover:text-primary transition-colors">Services</Link>
             <Link href="/forms" className="text-foreground hover:text-primary transition-colors">Forms</Link>
-            <Link href="/legislation" className="text-foreground hover:text-primary transition-colors">Legislation</Link>
             <Link href="/news" className="text-foreground hover:text-primary transition-colors">News</Link>
+            <Link href="/publications" className="text-foreground hover:text-primary transition-colors">Publication</Link>
+            <Link href="/legislation" className="text-foreground hover:text-primary transition-colors">Legislation</Link>
+            <Link href="/tenders" className="text-foreground hover:text-primary transition-colors">Tender</Link>
             <Link href="/contact" className="text-foreground hover:text-primary transition-colors">Contact</Link>
           </nav>
         </div>
