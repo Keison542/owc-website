@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import { app } from '../../index';
+import app from "../../app";
+
 import { 
   createTestUser, 
   createAdminUser, 
   getTokenForUser,
   getAuthHeaders,
-  createTestNews 
+  // createTestNews is not used in this file, so removed
 } from '../helpers/db';
 
 describe('📰 News API Tests', () => {
