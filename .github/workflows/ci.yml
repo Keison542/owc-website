@@ -26,7 +26,7 @@ jobs:
           version: 8
 
       - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: 🔍 TypeScript type check
         run: pnpm typecheck
@@ -36,7 +36,7 @@ jobs:
           cd artifacts/api-server
           pnpm test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/owc_test
+          DATABASE_URL: postgresql://postgres:kt@localhost:5432/owc_test
           PORT: 5178
           NODE_ENV: test
           JWT_SECRET: test-secret-key
