@@ -11,6 +11,7 @@ import contactRouter from "./contact";
 import searchRouter from "./search";
 import statsRouter from "./stats";
 import staffRouter from "./staff";
+import pendingRouter from "./pending";  // ✅ Add this import
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(contactRouter);
 router.use(searchRouter);
 router.use(statsRouter);
 router.use(staffRouter);
+router.use(pendingRouter);  // ✅ Add this router
 
 export default router;

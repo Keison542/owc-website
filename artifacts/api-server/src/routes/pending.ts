@@ -1,5 +1,5 @@
-import { Router, type IRouter } from "express";
-import { eq, desc, and, count, sql } from "drizzle-orm";  // ← Added sql here
+import { Router, type IRouter, type Request } from "express";
+import { eq, desc, and, count, sql } from "drizzle-orm";
 import { db, newsTable, publicationsTable, legislationTable } from "@workspace/db";
 import { requireStaffAuth } from "./staff";
 import { serializeDates, stripNulls } from "../lib/routeUtils";
@@ -9,6 +9,16 @@ const router: IRouter = Router();
 // ─── GET /api/pending ───
 router.get("/pending", requireStaffAuth, async (req, res): Promise<void> => {
   try {
+    // ✅ Check if user has permission (admin or approver)
+    const staffReq = req as Request & {
+      staffUser?: { userId: number; role: string };
+    };
+
+    if (staffReq.staffUser?.role !== "admin" && staffReq.staffUser?.role !== "approver") {
+      res.status(403).json({ error: "Insufficient permissions. Admin or Approver role required." });
+      return;
+    }
+
     // Get pending news
     const pendingNews = await db
       .select({
@@ -76,6 +86,16 @@ router.post("/approve", requireStaffAuth, async (req, res): Promise<void> => {
   }
 
   try {
+    // ✅ Check if user has permission (admin or approver)
+    const staffReq = req as Request & {
+      staffUser?: { userId: number; role: string };
+    };
+
+    if (staffReq.staffUser?.role !== "admin" && staffReq.staffUser?.role !== "approver") {
+      res.status(403).json({ error: "Insufficient permissions. Admin or Approver role required." });
+      return;
+    }
+
     let table;
     let idField;
     let typeName;
@@ -107,6 +127,7 @@ router.post("/approve", requireStaffAuth, async (req, res): Promise<void> => {
       return;
     }
 
+    // Only pending items can be approved/rejected
     if (item.status !== "pending") {
       res.status(400).json({ 
         error: `Content is not pending. Current status: ${item.status}` 

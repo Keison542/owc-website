@@ -46,9 +46,14 @@ export async function createViewerUser() {
 // ─── GET JWT TOKEN ───
 export async function getTokenForUser(user: any) {
   return jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET || 'test-secret',
-    { expiresIn: '1h' }
+    {
+      userId: user.id,   // ✅ Match staff.ts which expects 'userId'
+      role: user.role,
+    },
+    process.env.SESSION_SECRET || 'owc-staff-secret-key-change-in-prod',  // ✅ Match staff.ts
+    {
+      expiresIn: '8h',   // ✅ Match staff.ts
+    }
   );
 }
 
