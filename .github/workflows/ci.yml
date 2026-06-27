@@ -11,6 +11,22 @@ jobs:
     name: 🔍 Test
     runs-on: ubuntu-latest
     
+    # ─── POSTGRESQL SERVICE ───
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: owc_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -27,19 +43,29 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      # ─── PUSH DATABASE SCHEMA ───
+      - name: 📊 Push database schema
+        run: |
+          cd lib/db
+          pnpm drizzle-kit push
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/owc_test
+
       - name: 🔍 TypeScript type check
         run: pnpm typecheck
 
+      # ─── RUN API TESTS ───
       - name: 🧪 Run API tests
         run: |
           cd artifacts/api-server
           pnpm test
         env:
-          DATABASE_URL: postgresql://postgres:kt@localhost:5432/owc_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/owc_test
           PORT: 5178
           NODE_ENV: test
           JWT_SECRET: test-secret-key
 
+      # ─── BUILD ───
       - name: 🏗️ Build
         run: pnpm build
         env:
