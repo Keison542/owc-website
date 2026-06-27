@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret-key';
 // ✅ Use environment variable with fallback
 process.env.DATABASE_URL = process.env.DATABASE_URL || 
-  'postgresql://postgres:postgres@localhost:5432/owc_test';
+  'postgresql://postgres:kt@localhost:5432/owc_test';
 process.env.BASE_PATH = '/';
 process.env.CLIENT_URL = 'http://localhost:5173';
 

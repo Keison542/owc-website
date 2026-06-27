@@ -11,7 +11,6 @@ jobs:
     name: 🔍 Test
     runs-on: ubuntu-latest
     
-    # ─── POSTGRESQL SERVICE ───
     services:
       postgres:
         image: postgres:15
@@ -43,29 +42,27 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # ─── PUSH DATABASE SCHEMA ───
       - name: 📊 Push database schema
         run: |
           cd lib/db
           pnpm drizzle-kit push
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/owc_test
+          DATABASE_URL: 'postgresql://postgres:kt@localhost:5432/owc_test';
 
       - name: 🔍 TypeScript type check
         run: pnpm typecheck
 
-      # ─── RUN API TESTS ───
       - name: 🧪 Run API tests
         run: |
           cd artifacts/api-server
           pnpm test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/owc_test
+          DATABASE_URL: 'postgresql://postgres:kt@localhost:5432/owc_test';
+          
           PORT: 5178
           NODE_ENV: test
           JWT_SECRET: test-secret-key
 
-      # ─── BUILD ───
       - name: 🏗️ Build
         run: pnpm build
         env:
