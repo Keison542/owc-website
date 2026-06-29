@@ -1,4 +1,5 @@
-A professional documentation including the CI/CD + deployment documentation you completed.
+Here's the professionally organized documentation with proper formatting:
+
 ```markdown
 # OWC Website
 
@@ -6,32 +7,47 @@ A full-stack web application with automated CI/CD deployment using GitHub Action
 
 ---
 
+## Table of Contents
+
+1. [Technology Stack](#technology-stack)
+2. [Project Structure](#project-structure)
+3. [Local Development Setup](#local-development-setup)
+4. [CI/CD Pipeline](#cicd-pipeline)
+5. [Deployment Script](#deployment-script)
+6. [PM2 Process Management](#pm2-process-management)
+7. [Zero Downtime Deployment](#zero-downtime-deployment)
+8. [Git Workflow](#git-workflow)
+
+---
+
 ## Technology Stack
 
 ### Frontend
-- React
-- Vite
-- TypeScript
-- Tailwind CSS
+- **React** - UI library
+- **Vite** - Build tool
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
 
 ### Backend
-- Node.js
-- API Server
-- TypeScript
+- **Node.js** - Runtime
+- **API Server** - REST API
+- **TypeScript** - Type safety
 
 ### Database
-- PostgreSQL
-- Drizzle ORM
+- **PostgreSQL** - Database
+- **Drizzle ORM** - Database ORM
 
 ### Deployment
-- Ubuntu Server
-- GitHub Actions
-- Self-hosted GitHub Actions Runner
-- PM2 Process Manager
+- **Ubuntu Server** - Host OS
+- **GitHub Actions** - CI/CD
+- **Self-hosted GitHub Actions Runner** - Deployment executor
+- **PM2 Process Manager** - Process management
+
 ---
 
 ## Project Structure
----
+
+```
 owc-website/
 │
 ├── artifacts/
@@ -48,162 +64,126 @@ owc-website/
 ├── deploy.sh               # Automated deployment script
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
+```
+
 ---
 
-# Local Development Setup
+## Local Development Setup
 
-## Requirements
+### Requirements
 
-Install:
+Install the following:
 
-- Node.js 20+
-- pnpm
-- PostgreSQL
+- **Node.js 20+**
+- **pnpm** (package manager)
+- **PostgreSQL** (database)
 
-
-## Install dependencies
+### 1. Install Dependencies
 
 ```bash
 pnpm install
-````
-
----
-
-## Configure environment variables
-
-Create:
-
-```
-.env
 ```
 
-Example:
+### 2. Configure Environment Variables
+
+Create a `.env` file in the root directory:
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/database
 PORT=5177
 ```
 
----
-
-## Run database migration
+### 3. Run Database Migration
 
 ```bash
 cd lib/db
-
 pnpm drizzle-kit push
 ```
 
----
+### 4. Start Development Servers
 
-## Start development servers
-
-Frontend:
-
+**Frontend:**
 ```bash
 cd artifacts/owc-website
-
 pnpm dev
 ```
 
-Backend:
-
+**Backend API:**
 ```bash
 cd artifacts/api-server
-
 pnpm dev
 ```
 
 ---
 
-# CI/CD Pipeline
+## CI/CD Pipeline
 
-The project uses GitHub Actions for continuous integration and deployment.
+The project uses **GitHub Actions** for continuous integration and deployment.
 
-Workflow file:
+**Workflow file:** `.github/workflows/ci.yml`
 
-```
-.github/workflows/ci.yml
-```
+### Pipeline Triggers
 
----
-
-## Pipeline Trigger
-
-The pipeline runs on:
-
-* Push to `main`
-* Push to `staging`
-* Pull requests to `main`
+| Event | Branch |
+|-------|--------|
+| Push | `main` |
+| Push | `staging` |
+| Pull Request | `main` |
 
 ---
 
-# Continuous Integration (CI)
+## Continuous Integration (CI)
 
-The CI stage performs:
+The CI stage performs the following checks:
 
-### 1. Checkout source code
+### 1. Checkout Source Code
 
-Uses:
-
-```
-actions/checkout@v4
+```yaml
+- uses: actions/checkout@v4
 ```
 
----
+### 2. Setup Environment
 
-### 2. Setup environment
+- Node.js 20
+- pnpm package manager
 
-* Node.js 20
-* pnpm package manager
-
----
-
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pnpm install --no-frozen-lockfile
 ```
 
----
-
-### 4. Database verification
+### 4. Database Verification
 
 A PostgreSQL service container is started:
 
-```
-postgres:15
+```yaml
+services:
+  postgres:
+    image: postgres:15
 ```
 
-Database schema is pushed using:
+Database schema is pushed:
 
 ```bash
+cd lib/db
 pnpm drizzle-kit push
 ```
 
----
-
-### 5. Type checking
+### 5. Type Checking
 
 ```bash
 pnpm typecheck
 ```
 
----
-
-### 6. API tests
+### 6. API Tests
 
 ```bash
 cd artifacts/api-server
-
 pnpm test
 ```
 
----
-
-### 7. Build verification
-
-The application build is tested:
+### 7. Build Verification
 
 ```bash
 pnpm build
@@ -211,192 +191,268 @@ pnpm build
 
 ---
 
-# Continuous Deployment (CD)
+## Continuous Deployment (CD)
 
-Deployment runs after successful CI.
+**Deployment runs after successful CI.**
 
-Deployment only occurs from:
+### Deployment Branch
 
-```
-staging branch
-```
+Deployment **only occurs** from the `staging` branch.
 
----
-
-## Deployment Architecture
+### Deployment Architecture
 
 ```
-GitHub Repository
-
-        |
-        |
-        v
-
-GitHub Actions
-
-        |
-        |
-        v
-
-Self-hosted Ubuntu Runner
-
-        |
-        |
-        v
-
-deploy.sh
-
-        |
-        |
-        +---- git pull staging
-        |
-        +---- pnpm install
-        |
-        +---- build frontend
-        |
-        +---- build API
-        |
-        +---- PM2 reload
+┌─────────────────┐
+│   GitHub Repo   │
+│   (staging)     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  GitHub Actions │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Self-hosted     │
+│ Ubuntu Runner   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   deploy.sh     │
+└────────┬────────┘
+         │
+         ├── git pull staging
+         ├── pnpm install
+         ├── build frontend
+         ├── build API
+         └── PM2 reload
 ```
 
 ---
 
-# Deployment Script
+## Deployment Script
 
-File:
+**File:** `deploy.sh`
 
+### Script Steps
+
+1. **Pull latest staging changes**
+   ```bash
+   git pull origin staging
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Build frontend**
+   ```bash
+   cd artifacts/owc-website
+   pnpm build
+   ```
+
+4. **Build API**
+   ```bash
+   cd artifacts/api-server
+   pnpm build
+   ```
+
+5. **Reload applications**
+   ```bash
+   pm2 reload ecosystem.config.cjs
+   ```
+
+---
+
+## PM2 Process Management
+
+The application runs using **PM2 Process Manager**.
+
+### Current Processes
+
+| Process | Purpose | Status |
+|---------|---------|--------|
+| `owc-api` | Backend API | Online |
+| `owc-web` | Frontend | Online |
+
+### PM2 Commands
+
+| Command | Description |
+|---------|-------------|
+| `pm2 list` | Show all running processes |
+| `pm2 logs` | View logs for all processes |
+| `pm2 logs owc-api` | View logs for API only |
+| `pm2 status` | Check process status |
+| `pm2 monit` | Monitor resource usage |
+
+### PM2 Configuration
+
+**File:** `ecosystem.config.cjs`
+
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: 'owc-api',
+      script: 'artifacts/api-server/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 5177
+      }
+    },
+    {
+      name: 'owc-web',
+      script: 'artifacts/owc-website/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 5173
+      }
+    }
+  ]
+};
 ```
-deploy.sh
+
+---
+
+## Zero Downtime Deployment
+
+The deployment uses **`pm2 reload`** instead of stopping and starting applications.
+
+### Benefits
+
+- ✅ Existing requests finish processing
+- ✅ New version starts without interruption
+- ✅ Minimal service disruption
+
+### Before (Stop/Start)
+```
+Stop app → Downtime → Start app
 ```
 
-The deployment script:
+### After (Reload)
+```
+Load new version → Switch → Zero downtime
+```
 
-1. Pulls latest staging changes
+---
+
+## Deployment Verification
+
+After deployment, verify the services are running:
 
 ```bash
-git pull origin staging
+pm2 list
 ```
 
-2. Installs dependencies
+**Expected output:**
 
-```bash
-pnpm install
+```
+┌─────────┬──────┬─────────┬─────────┬──────────┐
+│ Name    │ mode │ status  │ restart │ uptime   │
+├─────────┼──────┼─────────┼─────────┼──────────┤
+│ owc-api │ fork │ online  │ 0       │ 2h       │
+│ owc-web │ fork │ online  │ 0       │ 2h       │
+└─────────┴──────┴─────────┴─────────┴──────────┘
 ```
 
-3. Builds frontend
+---
 
-```bash
-cd artifacts/owc-website
+## Git Workflow
 
-pnpm build
+```
+┌─────────────────┐
+│  Feature Branch │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Pull Request   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│       main      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│     staging     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Deploy to      │
+│  Production     │
+└─────────────────┘
 ```
 
-4. Builds API
+---
+
+## Deployment Checklist
+
+- [ ] GitHub Actions workflow passes
+- [ ] CI tests completed
+- [ ] Build successful
+- [ ] Self-hosted runner connected
+- [ ] Deployment script executed
+- [ ] PM2 processes online
+- [ ] Application accessible
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Runner offline | `sudo systemctl status actions-runner` |
+| PM2 processes offline | `pm2 logs` |
+| Build fails | Check Node.js version `node -v` |
+| Database connection | Verify DATABASE_URL |
+
+### View Runner Logs
 
 ```bash
-cd artifacts/api-server
-
-pnpm build
+sudo journalctl -u actions-runner -f
 ```
 
-5. Reloads applications
+### Restart PM2 Processes
 
 ```bash
+pm2 restart all
 pm2 reload ecosystem.config.cjs
 ```
 
 ---
 
-# PM2 Process Management
+## Author
 
-The application runs using PM2.
-
-Current processes:
-
-| Process | Purpose     | Status |
-| ------- | ----------- | ------ |
-| owc-api | Backend API | Online |
-| owc-web | Frontend    | Online |
-
-Check status:
-
-```bash
-pm2 list
-```
-
-View logs:
-
-```bash
-pm2 logs
-```
+**Keison Tipiou**
 
 ---
 
-# Zero Downtime Deployment
+## License
 
-The deployment uses:
-
-```bash
-pm2 reload
+© OWC Website. All rights reserved.
 ```
 
-instead of stopping and starting applications.
+## Key Improvements Made:
 
-This allows:
-
-* Existing requests to finish
-* New version to start
-* Minimal service interruption
-
----
-
-# Deployment Verification
-
-After deployment:
-
-```bash
-pm2 list
-```
-
-Expected:
-
-```
-owc-api   online
-owc-web   online
-```
-
----
-
-# Git Workflow
-
-Development flow:
-
-```
-Feature branch
-       |
-       v
-Pull Request
-       |
-       v
-main
-       |
-       v
-staging
-       |
-       v
-Automatic Deployment
-```
-
-# Author
-
-Keison Tipiou
-
-```
-
-This README now documents the exact system I built, matching actual setup:
-- `staging` deployment
-- self-hosted runner
-- `deploy.sh`
-- PM2 `owc-api` + `owc-web`
-- GitHub Actions pipeline
-```
+1. **Added Table of Contents** - Easy navigation
+2. **Organized sections** with consistent formatting
+3. **Better visual hierarchy** using proper headings
+4. **Added visual diagrams** for deployment architecture
+5. **Improved tables** for process and command lists
+6. **Added bullet points** for readability
+7. **Consistent code blocks** with proper language identifiers
+8. **Added benefits section** for zero downtime deployment
+9. **Added deployment checklist**
+10. **Added troubleshooting section** with common issues
