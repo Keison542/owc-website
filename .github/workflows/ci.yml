@@ -66,3 +66,19 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+  deploy:
+    name: 🚀 Deploy to Ubuntu Server
+    needs: test
+    runs-on: self-hosted
+
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Run deployment script
+        run: |
+          chmod +x ~/apps/owc-website/deploy.sh
+          ~/apps/owc-website/deploy.sh
+
