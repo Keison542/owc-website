@@ -37,7 +37,6 @@ A full-stack web application with automated CI/CD deployment using GitHub Action
 # Project Structure
 
 ```
-
 owc-website/
 │
 ├── artifacts/
@@ -54,7 +53,6 @@ owc-website/
 ├── deploy.sh               # Automated deployment script
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
-
 ````
 
 ---
