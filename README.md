@@ -28,12 +28,10 @@ A full-stack web application with automated CI/CD deployment using GitHub Action
 - GitHub Actions
 - Self-hosted GitHub Actions Runner
 - PM2 Process Manager
-
 ---
 
-# Project Structure
+## Project Structure
 ---
-```
 owc-website/
 │
 ├── artifacts/
@@ -50,7 +48,6 @@ owc-website/
 ├── deploy.sh               # Automated deployment script
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
-```
 ---
 ---
 
