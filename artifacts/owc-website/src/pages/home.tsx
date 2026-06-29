@@ -16,9 +16,9 @@ export default function Home() {
           <div className="inline-block bg-primary/20 text-primary-foreground border border-primary/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider mb-6">
             Papua New Guinea
           </div>
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white max-w-3xl leading-tight mb-6">
+          {/* <h1 className="text-4xl md:text-6xl font-serif font-bold text-white max-w-3xl leading-tight mb-6">
             Supporting safe workplaces and protecting injured workers.
-          </h1>
+          </h1> */}
           <p className="text-lg md:text-xl text-gray-300 max-w-2xl mb-10 leading-relaxed">
             The Office of Workers Compensation administers the Workers Compensation Act 1978, ensuring fair compensation and rehabilitation for all workers in PNG.
           </p>
