@@ -49,7 +49,6 @@ owc-website/
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
 ---
----
 
 # Local Development Setup
 
