@@ -50,8 +50,7 @@ owc-website/
 ├── deploy.sh               # Automated deployment script
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
-
-````
+```
 
 ---
 
