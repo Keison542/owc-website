@@ -1,7 +1,4 @@
 A professional documentation including the CI/CD + deployment documentation you completed.
-
-Create/update your `README.md` with this:
-
 ```markdown
 # OWC Website
 
