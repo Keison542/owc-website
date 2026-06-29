@@ -38,7 +38,7 @@ export default function StaffLogin() {
             OWC
           </div>
           <div>
-            <div className="font-serif font-bold text-xl text-white leading-none">Office of Workers Compensation</div>
+            {/* <div className="font-serif font-bold text-xl text-white leading-none">Office of Workers Compensation</div> */}
             <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Staff Portal</div>
           </div>
         </div>
