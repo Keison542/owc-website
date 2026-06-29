@@ -32,7 +32,7 @@ A full-stack web application with automated CI/CD deployment using GitHub Action
 ---
 
 # Project Structure
-
+---
 ```
 owc-website/
 │
@@ -51,6 +51,7 @@ owc-website/
 ├── ecosystem.config.cjs    # PM2 configuration
 └── README.md
 ```
+---
 ---
 
 # Local Development Setup
